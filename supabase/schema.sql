@@ -22,6 +22,11 @@ alter table public.nexor_biosite_hero_slides add column if not exists active boo
 alter table public.nexor_biosite_hero_slides add column if not exists created_at timestamptz not null default now();
 alter table public.nexor_biosite_hero_slides add column if not exists updated_at timestamptz not null default now();
 
+-- Remove referencias antigas a imagens locais/default. Rode este schema para limpar slides antigos.
+update public.nexor_biosite_hero_slides
+set image_url = ''
+where image_url like '/assets/%' or image_url like 'assets/%';
+
 create table if not exists public.nexor_biosite_services (
   id uuid primary key default gen_random_uuid()
 );

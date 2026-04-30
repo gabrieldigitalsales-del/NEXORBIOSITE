@@ -32,6 +32,10 @@ export default function AdminHeroSlides() {
   const cancel = () => setEditing(null);
 
   const save = async () => {
+    if (!form.image_url || !String(form.image_url).trim()) {
+      alert('Envie uma imagem para o slide antes de salvar. O site so renderiza imagens enviadas no admin.');
+      return;
+    }
     setSaving(true);
     try {
       await runAdminAction(async () => {
@@ -99,7 +103,7 @@ export default function AdminHeroSlides() {
             </div>
             <Field label="Ordem" value={String(form.order)} onChange={v => set('order', Number(v))} type="number" />
             <div className="sm:col-span-2">
-              <ImageUpload label="Imagem do slide (opcional)" value={form.image_url} onChange={v => set('image_url', v)} />
+              <ImageUpload label="Imagem do slide (obrigatoria para aparecer no site)" value={form.image_url} onChange={v => set('image_url', v)} />
             </div>
           </div>
           <div className="flex gap-3 mt-5">

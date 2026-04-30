@@ -1,13 +1,9 @@
 -- NEXOR Biosite - seed.sql
 -- Execute depois do schema.sql. Seguro para rodar mais de uma vez.
 
-insert into public.nexor_biosite_hero_slides (tag, title, highlight, "desc", cta, wamsg, image_url, bg_color, "order", active)
-select * from (values
-('Biosite', 'Transforme sua bio do Instagram em uma', 'vitrine de vendas', 'Seu negocio ganha um biosite moderno para seus clientes acessarem produtos e chamarem direto no WhatsApp.', 'Quero meu biosite', 'Ola%2C%20quero%20criar%20meu%20biosite%20com%20a%20NEXOR.', '/assets/hero-mockup.svg', 'from-amber-50 to-orange-50', 1, true),
-('Digital', 'Organize seus servicos em um site', 'rapido e profissional', 'Apresente seus links, ofertas e contatos em uma experiencia simples, bonita e preparada para converter.', 'Quero meu site', 'Ola%2C%20quero%20um%20site%20profissional%20com%20a%20NEXOR.', '/assets/hero-mockup.svg', 'from-orange-50 to-yellow-50', 2, true),
-('Vendas', 'Leve seus clientes direto para o', 'WhatsApp', 'Facilite o atendimento com chamadas claras, carrossel editavel e estrutura pronta para crescer junto com seu negocio.', 'Falar no WhatsApp', 'Ola%2C%20vim%20pelo%20site%20e%20quero%20saber%20mais.', '/assets/hero-mockup.svg', 'from-stone-50 to-amber-50', 3, true)
-) as v(tag, title, highlight, "desc", cta, wamsg, image_url, bg_color, "order", active)
-where not exists (select 1 from public.nexor_biosite_hero_slides);
+-- O hero nao recebe imagem default.
+-- Crie os slides no painel /admin e envie a imagem pelo upload.
+-- O front so renderiza slides ativos que tenham image_url preenchido pelo upload.
 
 insert into public.nexor_biosite_services (tag, title, "desc", features, wamsg, bg_color, badge_color, icon_name, "order", active)
 select * from (values
