@@ -6,7 +6,9 @@ import { useHeroSlides } from '@/lib/useSiteData';
 import { Link } from 'react-router-dom';
 
 const FALLBACK_SLIDES = [
-  { id: 'f1', tag: "Biosite", title: "Transforme sua bio do Instagram em uma", highlight: "vitrine de vendas", desc: "Seu negócio ganha um biosite moderno para seus clientes acessarem produtos e chamarem direto no WhatsApp.", cta: "Quero meu biosite", wamsg: "Olá%2C%20quero%20criar%20meu%20biosite%20com%20a%20NEXOR.", bg_color: "from-amber-50 to-orange-50", active: true, order: 1 },
+  { id: 'f1', tag: 'Biosite', title: 'Transforme sua bio do Instagram em uma', highlight: 'vitrine de vendas', desc: 'Seu negocio ganha um biosite moderno para seus clientes acessarem produtos e chamarem direto no WhatsApp.', cta: 'Quero meu biosite', wamsg: 'Ola%2C%20quero%20criar%20meu%20biosite%20com%20a%20NEXOR.', image_url: '/assets/hero-mockup.svg', bg_color: 'from-amber-50 to-orange-50', active: true, order: 1 },
+  { id: 'f2', tag: 'Digital', title: 'Organize seus servicos em um site', highlight: 'rapido e profissional', desc: 'Apresente seus links, ofertas e contatos em uma experiencia simples, bonita e preparada para converter.', cta: 'Quero meu site', wamsg: 'Ola%2C%20quero%20um%20site%20profissional%20com%20a%20NEXOR.', image_url: '/assets/hero-mockup.svg', bg_color: 'from-orange-50 to-yellow-50', active: true, order: 2 },
+  { id: 'f3', tag: 'Vendas', title: 'Leve seus clientes direto para o', highlight: 'WhatsApp', desc: 'Facilite o atendimento com chamadas claras, carrossel editavel e estrutura pronta para crescer junto com seu negocio.', cta: 'Falar no WhatsApp', wamsg: 'Ola%2C%20vim%20pelo%20site%20e%20quero%20saber%20mais.', image_url: '/assets/hero-mockup.svg', bg_color: 'from-stone-50 to-amber-50', active: true, order: 3 },
 ];
 
 export default function HeroCarousel() {
@@ -26,7 +28,6 @@ export default function HeroCarousel() {
     return () => clearInterval(timer);
   }, [activeSlides.length]);
 
-  // Reset index if slides change
   useEffect(() => {
     setCurrent(0);
   }, [activeSlides.length]);
@@ -57,7 +58,6 @@ export default function HeroCarousel() {
 
   return (
     <section id="inicio" className={`relative min-h-screen flex items-center pt-20 overflow-hidden transition-colors duration-700 bg-gradient-to-br ${slide.bg_color || 'from-amber-50 to-orange-50'}`}>
-      {/* Blobs */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-primary/8 rounded-full blur-3xl animate-glow-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-primary/6 rounded-full blur-3xl animate-glow-pulse" style={{ animationDelay: '2s' }} />
@@ -74,7 +74,6 @@ export default function HeroCarousel() {
             exit="exit"
             className="grid lg:grid-cols-2 gap-12 items-center"
           >
-            {/* Text */}
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6">
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
@@ -105,7 +104,6 @@ export default function HeroCarousel() {
               </div>
             </div>
 
-            {/* Image (if any) */}
             {slide.image_url && (
               <div className="flex justify-center lg:justify-end">
                 <div className="relative animate-float">
@@ -121,7 +119,6 @@ export default function HeroCarousel() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Arrows */}
         {activeSlides.length > 1 && (
           <>
             <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 border border-border shadow-sm flex items-center justify-center hover:bg-white transition-colors">
@@ -133,7 +130,6 @@ export default function HeroCarousel() {
           </>
         )}
 
-        {/* Dots */}
         {activeSlides.length > 1 && (
           <div className="flex justify-center gap-2 mt-12">
             {activeSlides.map((_, i) => (

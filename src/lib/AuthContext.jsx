@@ -1,46 +1,46 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/api/supabaseClient';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
+const SESSION_KEY = 'nexor_biosite_admin_session';
+const DEFAULT_ADMIN_PASSWORD = 'asd123';
+
+function getAdminPassword() {
+  return import.meta.env.VITE_ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
+}
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
 
-  const refreshUser = useCallback(async () => {
-    setIsLoadingAuth(true);
-    const { data } = await supabase.auth.getUser();
-    setUser(data?.user || null);
+  useEffect(() => {
+    setIsAuthenticated(sessionStorage.getItem(SESSION_KEY) === 'ok');
     setIsLoadingAuth(false);
-    return data?.user || null;
   }, []);
 
-  useEffect(() => {
-    refreshUser();
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-      setIsLoadingAuth(false);
-    });
-    return () => listener.subscription.unsubscribe();
-  }, [refreshUser]);
-
-  const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    setUser(data.user);
-    return data.user;
+  const signIn = async (password) => {
+    if (String(password || '') !== getAdminPassword()) {
+      throw new Error('Senha invalida');
+    }
+    sessionStorage.setItem(SESSION_KEY, 'ok');
+    setIsAuthenticated(true);
+    return true;
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
+    sessionStorage.removeItem(SESSION_KEY);
+    setIsAuthenticated(false);
   };
 
-  return (
-    <AuthContext.Provider value={{ user, isAuthenticated: Boolean(user), isLoadingAuth, signIn, logout, refreshUser }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = useMemo(() => ({
+    user: isAuthenticated ? { role: 'admin' } : null,
+    isAuthenticated,
+    isLoadingAuth,
+    signIn,
+    logout,
+    refreshUser: () => setIsAuthenticated(sessionStorage.getItem(SESSION_KEY) === 'ok'),
+  }), [isAuthenticated, isLoadingAuth]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

@@ -3,9 +3,17 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+export const SUPABASE_SCHEMA = import.meta.env.VITE_SUPABASE_SCHEMA || 'nexor_biosite';
+
 if (!supabaseUrl || !supabaseAnonKey) {
-  // Keep the app buildable, but make missing environment variables obvious in the browser console.
-  console.warn('Supabase environment variables are missing. Configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+  console.warn('Configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY antes de publicar.');
 }
 
-export const supabase = createClient(supabaseUrl || 'https://example.supabase.co', supabaseAnonKey || 'missing-anon-key');
+export const supabase = createClient(
+  supabaseUrl || 'https://example.supabase.co',
+  supabaseAnonKey || 'missing-anon-key',
+  {
+    db: { schema: SUPABASE_SCHEMA },
+    auth: { persistSession: false, autoRefreshToken: false },
+  }
+);

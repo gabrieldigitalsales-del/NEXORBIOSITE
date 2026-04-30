@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+import { supabase, SUPABASE_SCHEMA } from './supabaseClient';
 
 const TABLES = {
   HeroSlide: 'hero_slides',
@@ -21,10 +21,14 @@ async function assertNoError(result) {
   return result.data;
 }
 
+function table(tableName) {
+  return supabase.schema(SUPABASE_SCHEMA).from(tableName);
+}
+
 export function entity(tableName) {
   return {
     async list(orderBy = 'order', limit = 100) {
-      let query = supabase.from(tableName).select('*');
+      let query = table(tableName).select('*');
       if (orderBy) query = query.order(orderBy, { ascending: true });
       if (limit) query = query.limit(limit);
       return assertNoError(await query);
@@ -32,23 +36,24 @@ export function entity(tableName) {
 
     async create(payload) {
       return assertNoError(
-        await supabase.from(tableName).insert(cleanPayload(payload)).select().single()
+        await table(tableName).insert(cleanPayload(payload)).select().single()
       );
     },
 
     async update(id, payload) {
       return assertNoError(
-        await supabase.from(tableName).update(cleanPayload(payload)).eq('id', id).select().single()
+        await table(tableName).update(cleanPayload(payload)).eq('id', id).select().single()
       );
     },
 
     async delete(id) {
-      return assertNoError(await supabase.from(tableName).delete().eq('id', id));
+      return assertNoError(await table(tableName).delete().eq('id', id));
     },
   };
 }
 
 export const cms = {
+  schema: SUPABASE_SCHEMA,
   tables: TABLES,
   entities: {
     HeroSlide: entity(TABLES.HeroSlide),

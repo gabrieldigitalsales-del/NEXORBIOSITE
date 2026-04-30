@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 
-const DEFAULT_BUCKET = import.meta.env.VITE_SUPABASE_STORAGE_BUCKET || 'site-assets';
+const DEFAULT_BUCKET = import.meta.env.VITE_SUPABASE_STORAGE_BUCKET || 'nexor-biosite-assets';
 
 export async function uploadPublicImage(file, bucket = DEFAULT_BUCKET) {
   if (!file) return '';

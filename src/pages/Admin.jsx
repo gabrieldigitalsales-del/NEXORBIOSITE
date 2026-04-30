@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Lock, Mail } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AdminDashboard from '../components/admin/AdminDashboard';
 import { useAuth } from '@/lib/AuthContext';
 
 export default function Admin() {
   const { isAuthenticated, isLoadingAuth, signIn, logout } = useAuth();
-  const [email, setEmail] = useState(import.meta.env.VITE_ADMIN_EMAIL || '');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,10 +15,11 @@ export default function Admin() {
     setError('');
     setLoading(true);
     try {
-      await signIn(email, password);
+      await signIn(password);
+      setPassword('');
     } catch (err) {
       console.error(err);
-      setError('E-mail ou senha inválidos. Confira o usuário criado no Supabase Auth.');
+      setError('Senha invalida.');
     } finally {
       setLoading(false);
     }
@@ -44,17 +44,17 @@ export default function Admin() {
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">E-mail</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@seudominio.com" className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" required />
-              </div>
-            </div>
-            <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Senha</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Digite a senha" className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" required />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="Digite a senha"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  required
+                />
               </div>
               {error && <p className="text-destructive text-xs mt-1.5">{error}</p>}
             </div>
