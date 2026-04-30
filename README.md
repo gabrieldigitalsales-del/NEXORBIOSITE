@@ -6,31 +6,37 @@ Projeto React + Vite limpo, preparado para Supabase e Vercel, sem dependencias d
 
 - Painel admin sem e-mail: usa apenas senha.
 - Senha padrao do painel: `asd123`.
-- Carrossel hero restaurado com fallback local para nao sumir se o Supabase estiver vazio.
-- Supabase isolado no schema `nexor_biosite`.
+- Carrossel hero restaurado com fallback local para nao sumir se o banco estiver vazio.
+- Supabase isolado por nomes exclusivos no schema `public`:
+  - `nexor_biosite_hero_slides`
+  - `nexor_biosite_services`
+  - `nexor_biosite_faq_items`
+  - `nexor_biosite_plan_items`
+  - `nexor_biosite_site_content`
 - Storage isolado no bucket `nexor-biosite-assets`.
 - Arquivos prontos para Vercel com SPA fallback em `vercel.json`.
 
 ## Configuracao do Supabase
 
 1. Crie ou abra seu projeto no Supabase.
-2. No SQL Editor, execute `supabase/schema.sql`.
-3. Em Project Settings > API > Exposed schemas, adicione:
-
-```text
-nexor_biosite
-```
-
-4. Execute `supabase/seed.sql` para inserir o conteudo inicial do site.
-5. Copie `.env.example` para `.env.local` e preencha:
+2. Va em **SQL Editor**.
+3. Abra o arquivo `supabase/schema.sql`, copie tudo e execute.
+4. Confirme em **Table Editor** que apareceram as tabelas com prefixo `nexor_biosite_`.
+5. Execute `supabase/seed.sql` para inserir o conteudo inicial do site.
+6. Copie `.env.example` para `.env.local` e preencha:
 
 ```bash
 VITE_SUPABASE_URL=https://SEU-PROJETO.supabase.co
 VITE_SUPABASE_ANON_KEY=SUA_CHAVE_ANON_PUBLICA
-VITE_SUPABASE_SCHEMA=nexor_biosite
 VITE_SUPABASE_STORAGE_BUCKET=nexor-biosite-assets
 VITE_ADMIN_PASSWORD=asd123
 ```
+
+Na Vercel, cadastre as mesmas variaveis em **Project Settings > Environment Variables**.
+
+## Importante
+
+Esta versao usa tabelas no schema `public` com prefixo exclusivo do projeto. Isso evita o problema de tabela nao aparecer ou API nao encontrar tabela por falta de configuracao de `Exposed schemas`.
 
 ## Rodar localmente
 

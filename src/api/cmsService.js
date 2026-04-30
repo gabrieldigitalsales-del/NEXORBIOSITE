@@ -1,11 +1,14 @@
-import { supabase, SUPABASE_SCHEMA } from './supabaseClient';
+import { supabase } from './supabaseClient';
 
+// Tabelas exclusivas deste projeto dentro do schema public.
+// Usar prefixo evita conflito com outros projetos no mesmo Supabase
+// e dispensa configurar "Exposed schemas".
 const TABLES = {
-  HeroSlide: 'hero_slides',
-  Service: 'services',
-  FaqItem: 'faq_items',
-  PlanItem: 'plan_items',
-  SiteContent: 'site_content',
+  HeroSlide: 'nexor_biosite_hero_slides',
+  Service: 'nexor_biosite_services',
+  FaqItem: 'nexor_biosite_faq_items',
+  PlanItem: 'nexor_biosite_plan_items',
+  SiteContent: 'nexor_biosite_site_content',
 };
 
 function cleanPayload(payload = {}) {
@@ -22,7 +25,7 @@ async function assertNoError(result) {
 }
 
 function table(tableName) {
-  return supabase.schema(SUPABASE_SCHEMA).from(tableName);
+  return supabase.from(tableName);
 }
 
 export function entity(tableName) {
@@ -53,7 +56,6 @@ export function entity(tableName) {
 }
 
 export const cms = {
-  schema: SUPABASE_SCHEMA,
   tables: TABLES,
   entities: {
     HeroSlide: entity(TABLES.HeroSlide),

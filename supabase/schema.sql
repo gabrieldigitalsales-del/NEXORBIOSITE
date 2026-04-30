@@ -1,14 +1,11 @@
--- NEXOR Biosite - Supabase schema exclusivo do projeto
--- Execute no SQL Editor do Supabase.
--- Este arquivo cria tudo dentro do schema nexor_biosite para nao misturar com outros projetos.
+-- NEXOR Biosite - schema.sql exclusivo deste projeto
+-- Execute este arquivo inteiro no SQL Editor do Supabase.
+-- As tabelas ficam no schema public com prefixo nexor_biosite_ para nao misturar com outros projetos.
+-- Assim voce nao precisa configurar Exposed schemas no Supabase.
 
 create extension if not exists pgcrypto;
-create schema if not exists nexor_biosite;
 
-grant usage on schema nexor_biosite to anon, authenticated;
-grant all on schema nexor_biosite to service_role;
-
-create table if not exists nexor_biosite.hero_slides (
+create table if not exists public.nexor_biosite_hero_slides (
   id uuid primary key default gen_random_uuid(),
   tag text not null default '',
   title text not null default '',
@@ -24,7 +21,7 @@ create table if not exists nexor_biosite.hero_slides (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists nexor_biosite.services (
+create table if not exists public.nexor_biosite_services (
   id uuid primary key default gen_random_uuid(),
   tag text not null default '',
   title text not null default '',
@@ -40,7 +37,7 @@ create table if not exists nexor_biosite.services (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists nexor_biosite.faq_items (
+create table if not exists public.nexor_biosite_faq_items (
   id uuid primary key default gen_random_uuid(),
   question text not null default '',
   answer text not null default '',
@@ -50,7 +47,7 @@ create table if not exists nexor_biosite.faq_items (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists nexor_biosite.plan_items (
+create table if not exists public.nexor_biosite_plan_items (
   id uuid primary key default gen_random_uuid(),
   name text not null default '',
   featured boolean not null default false,
@@ -61,7 +58,7 @@ create table if not exists nexor_biosite.plan_items (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists nexor_biosite.site_content (
+create table if not exists public.nexor_biosite_site_content (
   id uuid primary key default gen_random_uuid(),
   section text not null,
   key text not null,
@@ -72,7 +69,7 @@ create table if not exists nexor_biosite.site_content (
   unique(section, key)
 );
 
-create or replace function nexor_biosite.set_updated_at()
+create or replace function public.nexor_biosite_set_updated_at()
 returns trigger language plpgsql as $$
 begin
   new.updated_at = now();
@@ -80,56 +77,61 @@ begin
 end;
 $$;
 
-drop trigger if exists set_hero_slides_updated_at on nexor_biosite.hero_slides;
-create trigger set_hero_slides_updated_at before update on nexor_biosite.hero_slides for each row execute function nexor_biosite.set_updated_at();
+drop trigger if exists nexor_biosite_hero_slides_updated_at on public.nexor_biosite_hero_slides;
+create trigger nexor_biosite_hero_slides_updated_at before update on public.nexor_biosite_hero_slides for each row execute function public.nexor_biosite_set_updated_at();
 
-drop trigger if exists set_services_updated_at on nexor_biosite.services;
-create trigger set_services_updated_at before update on nexor_biosite.services for each row execute function nexor_biosite.set_updated_at();
+drop trigger if exists nexor_biosite_services_updated_at on public.nexor_biosite_services;
+create trigger nexor_biosite_services_updated_at before update on public.nexor_biosite_services for each row execute function public.nexor_biosite_set_updated_at();
 
-drop trigger if exists set_faq_items_updated_at on nexor_biosite.faq_items;
-create trigger set_faq_items_updated_at before update on nexor_biosite.faq_items for each row execute function nexor_biosite.set_updated_at();
+drop trigger if exists nexor_biosite_faq_items_updated_at on public.nexor_biosite_faq_items;
+create trigger nexor_biosite_faq_items_updated_at before update on public.nexor_biosite_faq_items for each row execute function public.nexor_biosite_set_updated_at();
 
-drop trigger if exists set_plan_items_updated_at on nexor_biosite.plan_items;
-create trigger set_plan_items_updated_at before update on nexor_biosite.plan_items for each row execute function nexor_biosite.set_updated_at();
+drop trigger if exists nexor_biosite_plan_items_updated_at on public.nexor_biosite_plan_items;
+create trigger nexor_biosite_plan_items_updated_at before update on public.nexor_biosite_plan_items for each row execute function public.nexor_biosite_set_updated_at();
 
-drop trigger if exists set_site_content_updated_at on nexor_biosite.site_content;
-create trigger set_site_content_updated_at before update on nexor_biosite.site_content for each row execute function nexor_biosite.set_updated_at();
+drop trigger if exists nexor_biosite_site_content_updated_at on public.nexor_biosite_site_content;
+create trigger nexor_biosite_site_content_updated_at before update on public.nexor_biosite_site_content for each row execute function public.nexor_biosite_set_updated_at();
 
-grant select, insert, update, delete on all tables in schema nexor_biosite to anon, authenticated;
-grant usage, select on all sequences in schema nexor_biosite to anon, authenticated;
+grant select, insert, update, delete on table
+  public.nexor_biosite_hero_slides,
+  public.nexor_biosite_services,
+  public.nexor_biosite_faq_items,
+  public.nexor_biosite_plan_items,
+  public.nexor_biosite_site_content
+  to anon, authenticated;
 
-alter table nexor_biosite.hero_slides enable row level security;
-alter table nexor_biosite.services enable row level security;
-alter table nexor_biosite.faq_items enable row level security;
-alter table nexor_biosite.plan_items enable row level security;
-alter table nexor_biosite.site_content enable row level security;
+alter table public.nexor_biosite_hero_slides enable row level security;
+alter table public.nexor_biosite_services enable row level security;
+alter table public.nexor_biosite_faq_items enable row level security;
+alter table public.nexor_biosite_plan_items enable row level security;
+alter table public.nexor_biosite_site_content enable row level security;
 
--- Leitura publica do site e escrita via painel com senha do front-end.
--- Sem login Supabase/servidor, a seguranca real fica limitada ao controle da interface.
-drop policy if exists "Nexor public read hero slides" on nexor_biosite.hero_slides;
-create policy "Nexor public read hero slides" on nexor_biosite.hero_slides for select to anon, authenticated using (true);
-drop policy if exists "Nexor admin write hero slides" on nexor_biosite.hero_slides;
-create policy "Nexor admin write hero slides" on nexor_biosite.hero_slides for all to anon, authenticated using (true) with check (true);
+-- Leitura publica do site e escrita via painel com senha simples do front-end.
+-- Observacao: sem login/backend, esta permissao precisa permitir anon para o painel salvar.
+drop policy if exists "Nexor public read hero slides" on public.nexor_biosite_hero_slides;
+create policy "Nexor public read hero slides" on public.nexor_biosite_hero_slides for select to anon, authenticated using (true);
+drop policy if exists "Nexor admin write hero slides" on public.nexor_biosite_hero_slides;
+create policy "Nexor admin write hero slides" on public.nexor_biosite_hero_slides for all to anon, authenticated using (true) with check (true);
 
-drop policy if exists "Nexor public read services" on nexor_biosite.services;
-create policy "Nexor public read services" on nexor_biosite.services for select to anon, authenticated using (true);
-drop policy if exists "Nexor admin write services" on nexor_biosite.services;
-create policy "Nexor admin write services" on nexor_biosite.services for all to anon, authenticated using (true) with check (true);
+drop policy if exists "Nexor public read services" on public.nexor_biosite_services;
+create policy "Nexor public read services" on public.nexor_biosite_services for select to anon, authenticated using (true);
+drop policy if exists "Nexor admin write services" on public.nexor_biosite_services;
+create policy "Nexor admin write services" on public.nexor_biosite_services for all to anon, authenticated using (true) with check (true);
 
-drop policy if exists "Nexor public read faq items" on nexor_biosite.faq_items;
-create policy "Nexor public read faq items" on nexor_biosite.faq_items for select to anon, authenticated using (true);
-drop policy if exists "Nexor admin write faq items" on nexor_biosite.faq_items;
-create policy "Nexor admin write faq items" on nexor_biosite.faq_items for all to anon, authenticated using (true) with check (true);
+drop policy if exists "Nexor public read faq items" on public.nexor_biosite_faq_items;
+create policy "Nexor public read faq items" on public.nexor_biosite_faq_items for select to anon, authenticated using (true);
+drop policy if exists "Nexor admin write faq items" on public.nexor_biosite_faq_items;
+create policy "Nexor admin write faq items" on public.nexor_biosite_faq_items for all to anon, authenticated using (true) with check (true);
 
-drop policy if exists "Nexor public read plan items" on nexor_biosite.plan_items;
-create policy "Nexor public read plan items" on nexor_biosite.plan_items for select to anon, authenticated using (true);
-drop policy if exists "Nexor admin write plan items" on nexor_biosite.plan_items;
-create policy "Nexor admin write plan items" on nexor_biosite.plan_items for all to anon, authenticated using (true) with check (true);
+drop policy if exists "Nexor public read plan items" on public.nexor_biosite_plan_items;
+create policy "Nexor public read plan items" on public.nexor_biosite_plan_items for select to anon, authenticated using (true);
+drop policy if exists "Nexor admin write plan items" on public.nexor_biosite_plan_items;
+create policy "Nexor admin write plan items" on public.nexor_biosite_plan_items for all to anon, authenticated using (true) with check (true);
 
-drop policy if exists "Nexor public read site content" on nexor_biosite.site_content;
-create policy "Nexor public read site content" on nexor_biosite.site_content for select to anon, authenticated using (true);
-drop policy if exists "Nexor admin write site content" on nexor_biosite.site_content;
-create policy "Nexor admin write site content" on nexor_biosite.site_content for all to anon, authenticated using (true) with check (true);
+drop policy if exists "Nexor public read site content" on public.nexor_biosite_site_content;
+create policy "Nexor public read site content" on public.nexor_biosite_site_content for select to anon, authenticated using (true);
+drop policy if exists "Nexor admin write site content" on public.nexor_biosite_site_content;
+create policy "Nexor admin write site content" on public.nexor_biosite_site_content for all to anon, authenticated using (true) with check (true);
 
 insert into storage.buckets (id, name, public)
 values ('nexor-biosite-assets', 'nexor-biosite-assets', true)
