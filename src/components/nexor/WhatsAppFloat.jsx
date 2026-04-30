@@ -1,12 +1,16 @@
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
-
-const WHATSAPP_LINK = "https://wa.me/553198261608?text=Olá%2C%20quero%20conhecer%20os%20serviços%20da%20NEXOR.";
+import { useSiteContent } from '@/lib/useSiteData';
+import { getSetting, whatsappLink } from '@/lib/siteSettings';
 
 export default function WhatsAppFloat() {
+  const { data: settings } = useSiteContent();
+  const whatsappNumber = getSetting(settings, 'general', 'whatsapp_number', '553198261608');
+  const href = whatsappLink(whatsappNumber, 'Olá, quero conhecer os serviços da NEXOR.');
+
   return (
     <a
-      href={WHATSAPP_LINK}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30 transition-all duration-300 hover:scale-110"

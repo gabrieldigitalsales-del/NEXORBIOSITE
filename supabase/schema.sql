@@ -1,73 +1,84 @@
--- NEXOR Biosite - schema.sql exclusivo deste projeto
+-- NEXOR Biosite - schema.sql DEFINITIVO
 -- Execute este arquivo inteiro no SQL Editor do Supabase.
--- As tabelas ficam no schema public com prefixo nexor_biosite_ para nao misturar com outros projetos.
--- Assim voce nao precisa configurar Exposed schemas no Supabase.
+-- Estrutura isolada no schema public com prefixo nexor_biosite_.
+-- Seguro para rodar mais de uma vez: cria e tambem repara colunas/permissoes se algo ficou incompleto.
 
 create extension if not exists pgcrypto;
+grant usage on schema public to anon, authenticated;
 
 create table if not exists public.nexor_biosite_hero_slides (
-  id uuid primary key default gen_random_uuid(),
-  tag text not null default '',
-  title text not null default '',
-  highlight text not null default '',
-  "desc" text not null default '',
-  cta text not null default '',
-  wamsg text not null default '',
-  image_url text default '',
-  bg_color text default 'from-amber-50 to-orange-50',
-  "order" integer not null default 1,
-  active boolean not null default true,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  id uuid primary key default gen_random_uuid()
 );
+alter table public.nexor_biosite_hero_slides add column if not exists tag text not null default '';
+alter table public.nexor_biosite_hero_slides add column if not exists title text not null default '';
+alter table public.nexor_biosite_hero_slides add column if not exists highlight text not null default '';
+alter table public.nexor_biosite_hero_slides add column if not exists "desc" text not null default '';
+alter table public.nexor_biosite_hero_slides add column if not exists cta text not null default '';
+alter table public.nexor_biosite_hero_slides add column if not exists wamsg text not null default '';
+alter table public.nexor_biosite_hero_slides add column if not exists image_url text default '';
+alter table public.nexor_biosite_hero_slides add column if not exists bg_color text default 'from-amber-50 to-orange-50';
+alter table public.nexor_biosite_hero_slides add column if not exists "order" integer not null default 1;
+alter table public.nexor_biosite_hero_slides add column if not exists active boolean not null default true;
+alter table public.nexor_biosite_hero_slides add column if not exists created_at timestamptz not null default now();
+alter table public.nexor_biosite_hero_slides add column if not exists updated_at timestamptz not null default now();
 
 create table if not exists public.nexor_biosite_services (
-  id uuid primary key default gen_random_uuid(),
-  tag text not null default '',
-  title text not null default '',
-  "desc" text not null default '',
-  features text[] not null default '{}',
-  wamsg text not null default '',
-  bg_color text default 'from-amber-50 to-orange-50',
-  badge_color text default 'bg-amber-100 text-amber-700',
-  icon_name text default 'LayoutGrid',
-  "order" integer not null default 1,
-  active boolean not null default true,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  id uuid primary key default gen_random_uuid()
 );
+alter table public.nexor_biosite_services add column if not exists tag text not null default '';
+alter table public.nexor_biosite_services add column if not exists title text not null default '';
+alter table public.nexor_biosite_services add column if not exists "desc" text not null default '';
+alter table public.nexor_biosite_services add column if not exists features text[] not null default '{}';
+alter table public.nexor_biosite_services add column if not exists wamsg text not null default '';
+alter table public.nexor_biosite_services add column if not exists bg_color text default 'from-amber-50 to-orange-50';
+alter table public.nexor_biosite_services add column if not exists badge_color text default 'bg-amber-100 text-amber-700';
+alter table public.nexor_biosite_services add column if not exists icon_name text default 'LayoutGrid';
+alter table public.nexor_biosite_services add column if not exists "order" integer not null default 1;
+alter table public.nexor_biosite_services add column if not exists active boolean not null default true;
+alter table public.nexor_biosite_services add column if not exists created_at timestamptz not null default now();
+alter table public.nexor_biosite_services add column if not exists updated_at timestamptz not null default now();
 
 create table if not exists public.nexor_biosite_faq_items (
-  id uuid primary key default gen_random_uuid(),
-  question text not null default '',
-  answer text not null default '',
-  "order" integer not null default 1,
-  active boolean not null default true,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  id uuid primary key default gen_random_uuid()
 );
+alter table public.nexor_biosite_faq_items add column if not exists question text not null default '';
+alter table public.nexor_biosite_faq_items add column if not exists answer text not null default '';
+alter table public.nexor_biosite_faq_items add column if not exists "order" integer not null default 1;
+alter table public.nexor_biosite_faq_items add column if not exists active boolean not null default true;
+alter table public.nexor_biosite_faq_items add column if not exists created_at timestamptz not null default now();
+alter table public.nexor_biosite_faq_items add column if not exists updated_at timestamptz not null default now();
 
 create table if not exists public.nexor_biosite_plan_items (
-  id uuid primary key default gen_random_uuid(),
-  name text not null default '',
-  featured boolean not null default false,
-  features text[] not null default '{}',
-  "order" integer not null default 1,
-  active boolean not null default true,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  id uuid primary key default gen_random_uuid()
 );
+alter table public.nexor_biosite_plan_items add column if not exists name text not null default '';
+alter table public.nexor_biosite_plan_items add column if not exists featured boolean not null default false;
+alter table public.nexor_biosite_plan_items add column if not exists features text[] not null default '{}';
+alter table public.nexor_biosite_plan_items add column if not exists "order" integer not null default 1;
+alter table public.nexor_biosite_plan_items add column if not exists active boolean not null default true;
+alter table public.nexor_biosite_plan_items add column if not exists created_at timestamptz not null default now();
+alter table public.nexor_biosite_plan_items add column if not exists updated_at timestamptz not null default now();
 
 create table if not exists public.nexor_biosite_site_content (
-  id uuid primary key default gen_random_uuid(),
-  section text not null,
-  key text not null,
-  value text not null default '',
-  value_type text not null default 'text' check (value_type in ('text', 'image_url', 'url', 'color')),
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique(section, key)
+  id uuid primary key default gen_random_uuid()
 );
+alter table public.nexor_biosite_site_content add column if not exists section text not null default '';
+alter table public.nexor_biosite_site_content add column if not exists key text not null default '';
+alter table public.nexor_biosite_site_content add column if not exists value text not null default '';
+alter table public.nexor_biosite_site_content add column if not exists value_type text not null default 'text';
+alter table public.nexor_biosite_site_content add column if not exists created_at timestamptz not null default now();
+alter table public.nexor_biosite_site_content add column if not exists updated_at timestamptz not null default now();
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'nexor_biosite_site_content_section_key_unique'
+  ) then
+    alter table public.nexor_biosite_site_content
+      add constraint nexor_biosite_site_content_section_key_unique unique(section, key);
+  end if;
+end $$;
 
 create or replace function public.nexor_biosite_set_updated_at()
 returns trigger language plpgsql as $$
@@ -106,8 +117,6 @@ alter table public.nexor_biosite_faq_items enable row level security;
 alter table public.nexor_biosite_plan_items enable row level security;
 alter table public.nexor_biosite_site_content enable row level security;
 
--- Leitura publica do site e escrita via painel com senha simples do front-end.
--- Observacao: sem login/backend, esta permissao precisa permitir anon para o painel salvar.
 drop policy if exists "Nexor public read hero slides" on public.nexor_biosite_hero_slides;
 create policy "Nexor public read hero slides" on public.nexor_biosite_hero_slides for select to anon, authenticated using (true);
 drop policy if exists "Nexor admin write hero slides" on public.nexor_biosite_hero_slides;
@@ -133,9 +142,12 @@ create policy "Nexor public read site content" on public.nexor_biosite_site_cont
 drop policy if exists "Nexor admin write site content" on public.nexor_biosite_site_content;
 create policy "Nexor admin write site content" on public.nexor_biosite_site_content for all to anon, authenticated using (true) with check (true);
 
-insert into storage.buckets (id, name, public)
-values ('nexor-biosite-assets', 'nexor-biosite-assets', true)
-on conflict (id) do update set public = excluded.public;
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('nexor-biosite-assets', 'nexor-biosite-assets', true, 10485760, array['image/jpeg','image/png','image/webp','image/gif','image/svg+xml'])
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
 
 drop policy if exists "Nexor public reads assets" on storage.objects;
 create policy "Nexor public reads assets" on storage.objects for select to anon, authenticated using (bucket_id = 'nexor-biosite-assets');
@@ -145,3 +157,6 @@ drop policy if exists "Nexor admin updates assets" on storage.objects;
 create policy "Nexor admin updates assets" on storage.objects for update to anon, authenticated using (bucket_id = 'nexor-biosite-assets') with check (bucket_id = 'nexor-biosite-assets');
 drop policy if exists "Nexor admin deletes assets" on storage.objects;
 create policy "Nexor admin deletes assets" on storage.objects for delete to anon, authenticated using (bucket_id = 'nexor-biosite-assets');
+
+-- Teste rapido depois de executar:
+-- select count(*) from public.nexor_biosite_hero_slides;

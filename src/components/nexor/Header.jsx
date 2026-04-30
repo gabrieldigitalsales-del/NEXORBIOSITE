@@ -3,8 +3,8 @@ import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-
-const WHATSAPP_LINK = "https://wa.me/553198261608?text=Olá%2C%20quero%20conhecer%20os%20serviços%20da%20NEXOR.";
+import { useSiteContent } from '@/lib/useSiteData';
+import { getSetting, whatsappLink } from '@/lib/siteSettings';
 
 const NAV_ITEMS = [
   { label: "Início", href: "/" },
@@ -15,8 +15,13 @@ const NAV_ITEMS = [
 ];
 
 export default function Header() {
+  const { data: settings } = useSiteContent();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const logoUrl = getSetting(settings, 'general', 'logo_url', '/assets/logo-nexor.svg');
+  const whatsappNumber = getSetting(settings, 'general', 'whatsapp_number', '553198261608');
+  const whatsappHref = whatsappLink(whatsappNumber, 'Olá, quero conhecer os serviços da NEXOR.');
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -30,10 +35,9 @@ export default function Header() {
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
           <a href="#inicio" className="flex items-center gap-2.5">
             <img
-              src="/assets/logo-nexor.svg"
+              src={logoUrl}
               alt="NEXOR"
               className="h-9 w-9 md:h-10 md:w-10 rounded-full object-cover"
             />
@@ -42,7 +46,6 @@ export default function Header() {
             </span>
           </a>
 
-          {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-8">
             {NAV_ITEMS.map((item) => (
               item.href.startsWith('/') && !item.href.includes('#') ? (
@@ -65,14 +68,12 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Desktop CTA */}
-          <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" className="hidden lg:block">
+          <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="hidden lg:block">
             <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold px-6 rounded-full text-sm tracking-wide">
               Falar com a NEXOR
             </Button>
           </a>
 
-          {/* Mobile toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="lg:hidden p-2 text-foreground"
@@ -82,7 +83,6 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -113,7 +113,7 @@ export default function Header() {
                   </a>
                 )
               ))}
-              <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer" className="mt-2">
+              <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="mt-2">
                 <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-full">
                   Falar com a NEXOR
                 </Button>

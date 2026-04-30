@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useHeroSlides } from '@/lib/useSiteData';
+import { useHeroSlides, useSiteContent } from '@/lib/useSiteData';
 import { Link } from 'react-router-dom';
+import { getSetting, whatsappLink } from '@/lib/siteSettings';
 
 const FALLBACK_SLIDES = [
   { id: 'f1', tag: 'Biosite', title: 'Transforme sua bio do Instagram em uma', highlight: 'vitrine de vendas', desc: 'Seu negocio ganha um biosite moderno para seus clientes acessarem produtos e chamarem direto no WhatsApp.', cta: 'Quero meu biosite', wamsg: 'Ola%2C%20quero%20criar%20meu%20biosite%20com%20a%20NEXOR.', image_url: '/assets/hero-mockup.svg', bg_color: 'from-amber-50 to-orange-50', active: true, order: 1 },
@@ -13,6 +14,8 @@ const FALLBACK_SLIDES = [
 
 export default function HeroCarousel() {
   const { data: rawSlides } = useHeroSlides();
+  const { data: settings } = useSiteContent();
+  const whatsappNumber = getSetting(settings, 'general', 'whatsapp_number', '553198261608');
   const slides = (rawSlides?.filter(s => s.active) || []).sort((a, b) => a.order - b.order);
   const activeSlides = slides.length > 0 ? slides : FALLBACK_SLIDES;
 
@@ -90,7 +93,7 @@ export default function HeroCarousel() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mt-10 justify-center lg:justify-start">
-                <a href={`https://wa.me/553198261608?text=${slide.wamsg}`} target="_blank" rel="noopener noreferrer">
+                <a href={whatsappLink(whatsappNumber, slide.wamsg)} target="_blank" rel="noopener noreferrer">
                   <Button className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 font-semibold px-8 py-6 rounded-full text-base gap-2 shadow-lg shadow-primary/20">
                     {slide.cta}
                     <ArrowRight className="w-5 h-5" />

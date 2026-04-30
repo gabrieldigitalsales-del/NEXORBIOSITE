@@ -6,6 +6,7 @@ import AdminServices from './AdminServices';
 import AdminPlans from './AdminPlans';
 import AdminFaq from './AdminFaq';
 import AdminSiteSettings from './AdminSiteSettings';
+import AdminStatus from './AdminStatus';
 
 const TABS = [
   { id: 'hero', label: 'Carrossel Hero', icon: Image },
@@ -65,6 +66,7 @@ export default function AdminDashboard({ onLogout }) {
 
         {/* Content */}
         <main className="flex-1 p-4 sm:p-6 overflow-auto">
+          <AdminStatus />
           {activeTab === 'hero' && <AdminHeroSlides />}
           {activeTab === 'services' && <AdminServices />}
           {activeTab === 'plans' && <AdminPlans />}

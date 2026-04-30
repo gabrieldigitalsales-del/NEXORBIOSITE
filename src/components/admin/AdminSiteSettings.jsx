@@ -6,6 +6,7 @@ import { Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ImageUpload from './ImageUpload';
 import { toast } from 'sonner';
+import { refreshQueries } from './adminUtils';
 
 const SECTIONS = [
   { id: 'general', label: 'Geral', fields: [
@@ -65,25 +66,23 @@ export default function AdminSiteSettings() {
   const saveAll = async () => {
     setSaving(true);
     try {
-      const promises = [];
+      const payload = [];
       for (const section of SECTIONS) {
         for (const field of section.fields) {
-          const existing = settings?.[section.id]?.[field.key];
-          const payload = {
+          payload.push({
             section: section.id,
             key: field.key,
             value: getValue(section.id, field.key),
             value_type: getValueType(field.type),
-          };
-          promises.push(existing ? cms.entities.SiteContent.update(existing.id, payload) : cms.entities.SiteContent.create(payload));
+          });
         }
       }
-      await Promise.all(promises);
-      await qc.invalidateQueries({ queryKey: ['site-settings'] });
-      toast.success('Configurações salvas!');
+      await cms.upsertSiteContent(payload);
+      await refreshQueries(qc, ['site-settings']);
+      toast.success('Configuracoes salvas e publicadas no Supabase.');
     } catch (error) {
       console.error(error);
-      toast.error(error.message || 'Não foi possível salvar as configurações.');
+      toast.error(error.message || 'Nao foi possivel salvar as configuracoes.');
     } finally {
       setSaving(false);
     }

@@ -5,6 +5,7 @@ import { useServices } from '@/lib/useSiteData';
 import { Plus, Pencil, Trash2, Eye, EyeOff, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ImageUpload from './ImageUpload';
+import { runAdminAction, refreshQueries } from './adminUtils';
 
 const BG_OPTIONS = [
   'from-amber-50 to-orange-50',
@@ -32,7 +33,7 @@ export default function AdminServices() {
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ['services'] });
+  const refresh = () => refreshQueries(qc, ['services']);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const openNew = () => { setForm({ ...empty, order: (services?.length || 0) + 1 }); setEditing('new'); };
@@ -41,23 +42,25 @@ export default function AdminServices() {
 
   const save = async () => {
     setSaving(true);
-    const data = { ...form, features: form.features.filter(f => f.trim()) };
-    if (editing === 'new') await cms.entities.Service.create(data);
-    else await cms.entities.Service.update(editing, data);
-    await refresh();
-    setSaving(false);
-    setEditing(null);
+    try {
+      const data = { ...form, features: form.features.filter(f => f.trim()) };
+      await runAdminAction(async () => {
+        if (editing === 'new') await cms.entities.Service.create(data);
+        else await cms.entities.Service.update(editing, data);
+      }, { onSuccess: refresh, successMessage: 'Servico salvo e publicado no Supabase.' });
+      setEditing(null);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const remove = async (id) => {
-    if (!confirm('Excluir este serviço?')) return;
-    await cms.entities.Service.delete(id);
-    refresh();
+    if (!confirm('Excluir este servico?')) return;
+    await runAdminAction(() => cms.entities.Service.delete(id), { onSuccess: refresh, successMessage: 'Servico excluido.' });
   };
 
   const toggleActive = async (s) => {
-    await cms.entities.Service.update(s.id, { active: !s.active });
-    refresh();
+    await runAdminAction(() => cms.entities.Service.update(s.id, { active: !s.active }), { onSuccess: refresh, successMessage: 'Status do servico atualizado.' });
   };
 
   const addFeature = () => set('features', [...form.features, '']);

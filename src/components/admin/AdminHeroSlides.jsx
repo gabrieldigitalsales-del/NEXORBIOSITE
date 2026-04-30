@@ -5,6 +5,7 @@ import { useHeroSlides } from '@/lib/useSiteData';
 import { Plus, Pencil, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ImageUpload from './ImageUpload';
+import { runAdminAction, refreshQueries } from './adminUtils';
 
 const BG_OPTIONS = [
   'from-amber-50 to-orange-50',
@@ -24,7 +25,7 @@ export default function AdminHeroSlides() {
   const [form, setForm] = useState(emptySlide);
   const [saving, setSaving] = useState(false);
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ['hero-slides'] });
+  const refresh = () => refreshQueries(qc, ['hero-slides']);
 
   const openNew = () => { setForm({ ...emptySlide, order: (slides?.length || 0) + 1 }); setEditing('new'); };
   const openEdit = (s) => { setForm({ ...s }); setEditing(s.id); };
@@ -32,25 +33,27 @@ export default function AdminHeroSlides() {
 
   const save = async () => {
     setSaving(true);
-    if (editing === 'new') {
-      await cms.entities.HeroSlide.create(form);
-    } else {
-      await cms.entities.HeroSlide.update(editing, form);
+    try {
+      await runAdminAction(async () => {
+        if (editing === 'new') {
+          await cms.entities.HeroSlide.create(form);
+        } else {
+          await cms.entities.HeroSlide.update(editing, form);
+        }
+      }, { onSuccess: refresh, successMessage: 'Slide salvo e publicado no Supabase.' });
+      setEditing(null);
+    } finally {
+      setSaving(false);
     }
-    await refresh();
-    setSaving(false);
-    setEditing(null);
   };
 
   const remove = async (id) => {
     if (!confirm('Excluir este slide?')) return;
-    await cms.entities.HeroSlide.delete(id);
-    refresh();
+    await runAdminAction(() => cms.entities.HeroSlide.delete(id), { onSuccess: refresh, successMessage: 'Slide excluido.' });
   };
 
   const toggleActive = async (s) => {
-    await cms.entities.HeroSlide.update(s.id, { active: !s.active });
-    refresh();
+    await runAdminAction(() => cms.entities.HeroSlide.update(s.id, { active: !s.active }), { onSuccess: refresh, successMessage: 'Status do slide atualizado.' });
   };
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));

@@ -1,66 +1,89 @@
-# NEXOR Biosite
+# NEXOR Biosite - Supabase + Vercel
 
-Projeto React + Vite limpo, preparado para Supabase e Vercel, sem dependencias da plataforma anterior.
+Projeto limpo, pronto para Vercel e Supabase.
 
-## O que foi ajustado
+## 1. Supabase
 
-- Painel admin sem e-mail: usa apenas senha.
-- Senha padrao do painel: `asd123`.
-- Carrossel hero restaurado com fallback local para nao sumir se o banco estiver vazio.
-- Supabase isolado por nomes exclusivos no schema `public`:
-  - `nexor_biosite_hero_slides`
-  - `nexor_biosite_services`
-  - `nexor_biosite_faq_items`
-  - `nexor_biosite_plan_items`
-  - `nexor_biosite_site_content`
-- Storage isolado no bucket `nexor-biosite-assets`.
-- Arquivos prontos para Vercel com SPA fallback em `vercel.json`.
+No Supabase, abra **SQL Editor** e execute nesta ordem:
 
-## Configuracao do Supabase
+1. `supabase/schema.sql`
+2. `supabase/seed.sql`
 
-1. Crie ou abra seu projeto no Supabase.
-2. Va em **SQL Editor**.
-3. Abra o arquivo `supabase/schema.sql`, copie tudo e execute.
-4. Confirme em **Table Editor** que apareceram as tabelas com prefixo `nexor_biosite_`.
-5. Execute `supabase/seed.sql` para inserir o conteudo inicial do site.
-6. Copie `.env.example` para `.env.local` e preencha:
+O projeto usa o schema `public`, mas com nomes exclusivos para nao misturar com outros projetos:
 
-```bash
+- `nexor_biosite_hero_slides`
+- `nexor_biosite_services`
+- `nexor_biosite_faq_items`
+- `nexor_biosite_plan_items`
+- `nexor_biosite_site_content`
+
+O bucket de imagens criado e usado pelo site e:
+
+- `nexor-biosite-assets`
+
+O `schema.sql` e reparador/idempotente: pode rodar novamente se alguma tabela, coluna, politica ou bucket tiver ficado faltando.
+
+## 2. Vercel
+
+Configure as variaveis em **Project Settings > Environment Variables**:
+
+```env
 VITE_SUPABASE_URL=https://SEU-PROJETO.supabase.co
 VITE_SUPABASE_ANON_KEY=SUA_CHAVE_ANON_PUBLICA
 VITE_SUPABASE_STORAGE_BUCKET=nexor-biosite-assets
 VITE_ADMIN_PASSWORD=asd123
 ```
 
-Na Vercel, cadastre as mesmas variaveis em **Project Settings > Environment Variables**.
+Remova qualquer variavel antiga como `VITE_SUPABASE_SCHEMA`.
 
-## Importante
+Config do projeto na Vercel:
 
-Esta versao usa tabelas no schema `public` com prefixo exclusivo do projeto. Isso evita o problema de tabela nao aparecer ou API nao encontrar tabela por falta de configuracao de `Exposed schemas`.
+- Framework Preset: `Vite`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+- Install Command: `npm install`
+- Root Directory: vazio/em branco se o `package.json` esta na raiz do repositorio
 
-## Rodar localmente
+O arquivo `vercel.json` ja esta configurado para abrir `/admin` e outras rotas React.
 
-```bash
-npm install
-npm run dev
+## 3. Admin
+
+Rota:
+
+```text
+/admin
 ```
 
-## Build
+Senha padrao:
 
-```bash
-npm run build
+```text
+asd123
 ```
 
-## Deploy na Vercel
+No topo do painel admin existe um bloco **Status do Supabase**. Clique em **Testar conexao**. Ele verifica:
 
-1. Importe o repositorio na Vercel.
-2. Configure as variaveis do `.env.example` em Project Settings > Environment Variables.
-3. Build command: `npm run build`.
-4. Output directory: `dist`.
-5. Aponte seu dominio proprio em Project Settings > Domains.
+- se as variaveis da Vercel foram carregadas;
+- se as tabelas existem;
+- se o site consegue gravar e apagar um registro real no Supabase.
 
-## Painel admin
+Se esse teste falhar, rode novamente o `supabase/schema.sql` inteiro.
 
-Acesse `/admin` e digite apenas a senha: `asd123`.
+## 4. Deploy
 
-Observacao importante: como foi pedido para remover e-mail/login do Supabase Auth, a senha protege apenas a interface do painel no front-end. Para seguranca forte em producao, o ideal e usar Supabase Auth, Edge Function ou backend proprio. Este pacote foi mantido conforme solicitado: sem e-mail/login, apenas senha simples.
+Depois de subir para o GitHub, faca redeploy na Vercel com **Clear Build Cache**.
+
+## 5. GitHub
+
+Exemplo:
+
+```powershell
+cd "C:\Users\Admin\Desktop\nexor site"
+
+git add .
+git commit -m "Corrige Supabase e admin Nexor Biosite"
+git push -u origin main --force
+```
+
+## Observacao importante
+
+Como o admin foi solicitado apenas com senha no front-end, as politicas do Supabase permitem escrita anonima para esse projeto. Isso faz o painel funcionar sem login de usuario no Supabase. Para seguranca maior, o ideal futuro seria criar uma API serverless na Vercel ou usar Supabase Auth.

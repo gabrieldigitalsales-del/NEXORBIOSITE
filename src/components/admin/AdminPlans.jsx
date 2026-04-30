@@ -4,6 +4,7 @@ import { cms } from '@/api/cmsService';
 import { usePlanItems } from '@/lib/useSiteData';
 import { Plus, Pencil, Trash2, Eye, EyeOff, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { runAdminAction, refreshQueries } from './adminUtils';
 
 const empty = { name: '', featured: false, features: [''], order: 1, active: true };
 
@@ -14,7 +15,7 @@ export default function AdminPlans() {
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ['plan-items'] });
+  const refresh = () => refreshQueries(qc, ['plan-items']);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const openNew = () => { setForm({ ...empty, order: (plans?.length || 0) + 1 }); setEditing('new'); };
@@ -23,23 +24,25 @@ export default function AdminPlans() {
 
   const save = async () => {
     setSaving(true);
-    const data = { ...form, features: form.features.filter(f => f.trim()) };
-    if (editing === 'new') await cms.entities.PlanItem.create(data);
-    else await cms.entities.PlanItem.update(editing, data);
-    await refresh();
-    setSaving(false);
-    setEditing(null);
+    try {
+      const data = { ...form, features: form.features.filter(f => f.trim()) };
+      await runAdminAction(async () => {
+        if (editing === 'new') await cms.entities.PlanItem.create(data);
+        else await cms.entities.PlanItem.update(editing, data);
+      }, { onSuccess: refresh, successMessage: 'Plano salvo e publicado no Supabase.' });
+      setEditing(null);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const remove = async (id) => {
     if (!confirm('Excluir este plano?')) return;
-    await cms.entities.PlanItem.delete(id);
-    refresh();
+    await runAdminAction(() => cms.entities.PlanItem.delete(id), { onSuccess: refresh, successMessage: 'Plano excluido.' });
   };
 
   const toggleActive = async (p) => {
-    await cms.entities.PlanItem.update(p.id, { active: !p.active });
-    refresh();
+    await runAdminAction(() => cms.entities.PlanItem.update(p.id, { active: !p.active }), { onSuccess: refresh, successMessage: 'Status do plano atualizado.' });
   };
 
   const addFeature = () => set('features', [...form.features, '']);

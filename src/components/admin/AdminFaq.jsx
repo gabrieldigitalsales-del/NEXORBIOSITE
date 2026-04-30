@@ -4,6 +4,7 @@ import { cms } from '@/api/cmsService';
 import { useFaqItems } from '@/lib/useSiteData';
 import { Plus, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { runAdminAction, refreshQueries } from './adminUtils';
 
 const empty = { question: '', answer: '', order: 1, active: true };
 
@@ -14,7 +15,7 @@ export default function AdminFaq() {
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
 
-  const refresh = () => qc.invalidateQueries({ queryKey: ['faq-items'] });
+  const refresh = () => refreshQueries(qc, ['faq-items']);
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const openNew = () => { setForm({ ...empty, order: (items?.length || 0) + 1 }); setEditing('new'); };
@@ -23,22 +24,24 @@ export default function AdminFaq() {
 
   const save = async () => {
     setSaving(true);
-    if (editing === 'new') await cms.entities.FaqItem.create(form);
-    else await cms.entities.FaqItem.update(editing, form);
-    await refresh();
-    setSaving(false);
-    setEditing(null);
+    try {
+      await runAdminAction(async () => {
+        if (editing === 'new') await cms.entities.FaqItem.create(form);
+        else await cms.entities.FaqItem.update(editing, form);
+      }, { onSuccess: refresh, successMessage: 'FAQ salvo e publicado no Supabase.' });
+      setEditing(null);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const remove = async (id) => {
     if (!confirm('Excluir esta pergunta?')) return;
-    await cms.entities.FaqItem.delete(id);
-    refresh();
+    await runAdminAction(() => cms.entities.FaqItem.delete(id), { onSuccess: refresh, successMessage: 'Pergunta excluida.' });
   };
 
   const toggleActive = async (item) => {
-    await cms.entities.FaqItem.update(item.id, { active: !item.active });
-    refresh();
+    await runAdminAction(() => cms.entities.FaqItem.update(item.id, { active: !item.active }), { onSuccess: refresh, successMessage: 'Status atualizado.' });
   };
 
   return (

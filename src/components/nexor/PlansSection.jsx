@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { Check, ArrowRight, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { usePlanItems } from '@/lib/useSiteData';
+import { getSetting, whatsappLink } from '@/lib/siteSettings';
+import { usePlanItems, useSiteContent } from '@/lib/useSiteData';
 
 const FALLBACK_PLANS = [
   { id: 'p1', name: "Inicial", featured: false, features: ["Biosite com até 20 produtos", "Link para bio", "Botão de WhatsApp", "Identidade visual básica"], active: true, order: 1 },
@@ -11,13 +12,14 @@ const FALLBACK_PLANS = [
   { id: 'p3', name: "Premium", featured: false, features: ["Produtos ilimitados", "Design personalizado", "Domínio personalizado", "Integração com Pix", "Suporte prioritário"], active: true, order: 3 },
 ];
 
-function getWhatsAppLink(planName) {
-  const msg = encodeURIComponent(`Olá, quero saber mais sobre o plano ${planName} da NEXOR.`);
-  return `https://wa.me/553198261608?text=${msg}`;
+function getWhatsAppLink(number, planName) {
+  return whatsappLink(number, `Olá, quero saber mais sobre o plano ${planName} da NEXOR.`);
 }
 
 export default function PlansSection() {
   const { data: rawPlans } = usePlanItems();
+  const { data: settings } = useSiteContent();
+  const whatsappNumber = getSetting(settings, 'general', 'whatsapp_number', '553198261608');
   const sorted = (rawPlans?.filter(p => p.active) || []).sort((a, b) => a.order - b.order);
   const plans = sorted.length > 0 ? sorted : FALLBACK_PLANS;
 
@@ -71,7 +73,7 @@ export default function PlansSection() {
                 ))}
               </ul>
 
-              <a href={getWhatsAppLink(plan.name)} target="_blank" rel="noopener noreferrer">
+              <a href={getWhatsAppLink(whatsappNumber, plan.name)} target="_blank" rel="noopener noreferrer">
                 <Button
                   className={`w-full rounded-full py-6 font-semibold text-base gap-2 ${
                     plan.featured

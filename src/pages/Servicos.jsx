@@ -5,7 +5,8 @@ import WhatsAppFloat from '../components/nexor/WhatsAppFloat';
 import { motion } from 'framer-motion';
 import { ArrowRight, LayoutGrid, Instagram, Clapperboard, Globe, ShoppingBag, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useServices } from '@/lib/useSiteData';
+import { getSetting, whatsappLink } from '@/lib/siteSettings';
+import { useServices, useSiteContent } from '@/lib/useSiteData';
 
 const ICON_MAP = { LayoutGrid, Instagram, Clapperboard, Globe, ShoppingBag, Star };
 
@@ -16,6 +17,8 @@ const FALLBACK = [
 
 export default function Servicos() {
   const { data: rawServices } = useServices();
+  const { data: settings } = useSiteContent();
+  const whatsappNumber = getSetting(settings, 'general', 'whatsapp_number', '553198261608');
   const sorted = (rawServices?.filter(s => s.active) || []).sort((a, b) => a.order - b.order);
   const services = sorted.length > 0 ? sorted : FALLBACK;
 
@@ -64,7 +67,7 @@ export default function Servicos() {
                     <h2 className="text-2xl md:text-3xl font-playfair font-bold text-foreground">{service.title}</h2>
                   </div>
                   <p className="text-muted-foreground leading-relaxed mb-6">{service.desc}</p>
-                  <a href={`https://wa.me/553198261608?text=${service.wamsg}`} target="_blank" rel="noopener noreferrer">
+                  <a href={whatsappLink(whatsappNumber, service.wamsg)} target="_blank" rel="noopener noreferrer">
                     <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-full px-7 py-5 gap-2 shadow-md shadow-primary/20">
                       Solicitar orçamento
                       <ArrowRight className="w-4 h-4" />
